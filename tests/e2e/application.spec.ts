@@ -108,7 +108,7 @@ test("Desktop layout, navigation, keyboard focus, empty collections, and accessi
 });
 test("Mobile menu, narrow layout, and WebGL fallback",async({page})=>{
   await page.setViewportSize({width:390,height:844});
-  await page.addInitScript(()=>{const get=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(kind:string,...args:unknown[]){if(kind.startsWith("webgl")||kind==="experimental-webgl")return null;return (get as Function).apply(this,[kind,...args]);} as typeof get;});
+  await page.addInitScript(()=>{const get=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(this:HTMLCanvasElement,kind:string,...args:unknown[]){if(kind.startsWith("webgl")||kind==="experimental-webgl")return null;return (get as Function).apply(this,[kind,...args]);} as typeof get;});
   await page.goto("/");expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   await page.getByRole("button",{name:"Menu +"}).click();
   await expect(page.getByRole("navigation",{name:"Main navigation"})).toBeVisible();
