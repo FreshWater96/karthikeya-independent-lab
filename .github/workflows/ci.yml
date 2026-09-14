@@ -1,0 +1,58 @@
+name: Verify independent lab
+on:
+  push:
+    branches: [main]
+    paths-ignore: ["**.md"]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: lab-verification-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install --no-fund --no-audit
+      - name: Generate disposable local test configuration
+        run: node scripts/setup-local.mjs --test
+      - name: Start private local data services
+        run: docker compose --env-file .env.local up -d --wait
+      - name: Initialize schema and private bucket
+        run: |
+          npm run db:migrate
+          npm run storage:init
+      - name: Check types
+        run: npm run typecheck
+      - name: Unit tests
+        run: npm test
+      - name: Production build
+        run: npm run build
+      - name: Install test browser
+        run: npx playwright install --with-deps chromium
+      - name: Browser and security integration tests
+        run: npm run test:e2e
+      - name: Dependency security report
+        if: always()
+        run: npm audit --omit=dev --audit-level=high
+      - name: Save verification artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: independent-lab-verification
+          path: |
+            playwright-report/
+            test-results/
+            package-lock.json
+          retention-days: 7
+          if-no-files-found: ignore
+      - name: Stop test services
+        if: always()
+        run: docker compose --env-file .env.local down
