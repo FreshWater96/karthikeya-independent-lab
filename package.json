@@ -1,0 +1,44 @@
+{
+  "name": "karthikeya-independent-lab",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --hostname 127.0.0.1",
+    "build": "next build",
+    "start": "next start --hostname 127.0.0.1",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/unit.test.ts",
+    "test:e2e": "playwright test",
+    "setup:local": "node scripts/setup-local.mjs",
+    "db:migrate": "tsx --env-file=.env.local scripts/migrate.ts",
+    "storage:init": "tsx --env-file=.env.local scripts/storage-init.ts"
+  },
+  "dependencies": {
+    "next": "^16.3.3",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "three": "^0.180.0",
+    "pg": "^8.16.3",
+    "jose": "^6.1.0",
+    "zod": "^3.25.76",
+    "@aws-sdk/client-s3": "^3.888.0",
+    "sharp": "^0.34.5",
+    "react-markdown": "^10.1.0",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "@types/node": "^22.18.0",
+    "@types/pg": "^8.15.5",
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
+    "@types/three": "^0.180.0",
+    "tsx": "^4.20.5",
+    "@playwright/test": "^1.55.0",
+    "@axe-core/playwright": "^4.10.2"
+  },
+  "engines": {
+    "node": ">=22.14.0"
+  }
+}
