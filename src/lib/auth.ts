@@ -32,7 +32,7 @@ export async function createSession(ownerId:string) {
   (await cookies()).set(sessionCookie(),token,{...cookieOptions(),maxAge:43200});
 }
 export const csrfToken=(s:OwnerSession) => createHmac("sha256",secretKey()).update("csrf:"+s.token_hash).digest("hex");
-export const equal=(a:string,b:string) => a.length===b.length && timingSafeEqual(Buffer.from(a),Buffer.from(b));
+export const equal=(a:string,b:string) => {const left=Buffer.from(a),right=Buffer.from(b);return left.length===right.length && timingSafeEqual(left,right);};
 export class HttpError extends Error {constructor(public status:number,message:string){super(message);}}
 export async function requireOwner(request?:Request) {
   const s=await owner(); if(!s) throw new HttpError(401,"Owner authentication required.");
