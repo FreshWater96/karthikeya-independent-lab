@@ -9,7 +9,7 @@ type Context={params:Promise<{section:string;slug:string}>};
 export async function generateMetadata({params}:Context):Promise<Metadata>{
   if(!(await publicAccess()))return{title:"Private preview",robots:{index:false,follow:false}};
   const {section,slug}=await params;
-  if(!map[section])return{title:"Not found"};
+  if(!Object.hasOwn(map,section))return{title:"Not found"};
   const e=await publicEntry(map[section],slug);
   if(!e)return{title:"Not found"};
   const description=e.data.summary||e.data.abstract.slice(0,180);
@@ -17,7 +17,7 @@ export async function generateMetadata({params}:Context):Promise<Metadata>{
 }
 export default async function Detail({params}:Context){
   if(!(await publicAccess()))return null;
-  const {section,slug}=await params;if(!map[section])notFound();
+  const {section,slug}=await params;if(!Object.hasOwn(map,section))notFound();
   const entry=await publicEntry(map[section],slug);if(!entry)notFound();
   return <EntryView entry={entry}/>;
 }
