@@ -12,7 +12,8 @@
     "test:e2e": "playwright test",
     "setup:local": "node scripts/setup-local.mjs",
     "db:migrate": "tsx --env-file=.env.local scripts/migrate.ts",
-    "storage:init": "tsx --env-file=.env.local scripts/storage-init.ts"
+    "storage:init": "tsx --env-file=.env.local scripts/storage-init.ts",
+    "storage:gc": "tsx --env-file=.env.local scripts/gc.ts"
   },
   "dependencies": {
     "next": "^16.3.3",
@@ -25,7 +26,10 @@
     "@aws-sdk/client-s3": "^3.888.0",
     "sharp": "^0.34.5",
     "react-markdown": "^10.1.0",
-    "server-only": "^0.0.1"
+    "server-only": "^0.0.1",
+    "pdf-lib": "^1.17.1",
+    "@fontsource-variable/manrope": "^5.2.0",
+    "@fontsource/ibm-plex-mono": "^5.2.0"
   },
   "devDependencies": {
     "typescript": "^5.9.2",
