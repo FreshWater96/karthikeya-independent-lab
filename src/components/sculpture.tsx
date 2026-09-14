@@ -15,7 +15,7 @@ export function StaticSculpture(){
       <ellipse cx="328" cy="321" rx="272" ry="120" transform="rotate(43 328 321)"/>
       <path d="M75 188 554 467M121 490 520 142M327 60V584"/>
     </g>
-    <g fill="none" strokeLinecap="round">
+    <g fill="none" strokeLinecap="round" strokeLinejoin="round">
       <path d="M440 178C630 262 394 548 238 452S182 119 333 150 444 503 282 472 91 220 229 197 569 351 440 178Z" stroke="#081139" strokeWidth="58"/>
       <path d="M440 169C630 253 394 539 238 443S182 110 333 141 444 494 282 463 91 211 229 188 569 342 440 169Z" stroke={"url(#"+id+"blue)"} strokeWidth="45"/>
       <path d="M192 286C132 366 344 486 452 362S334 185 257 237 331 447 409 369" stroke={"url(#"+id+"dark)"} strokeWidth="24"/>
