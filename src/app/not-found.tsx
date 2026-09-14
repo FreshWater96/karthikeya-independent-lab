@@ -1,0 +1,2 @@
+import Link from "next/link";
+export default function NotFound(){return <main id="main" className="not-found"><span className="mono eyebrow">404 / OUTSIDE THE KNOWN FIELD</span><h1>Some ideas<br/>lead elsewhere.</h1><p>This page isn’t here. There’s more to explore back at the lab.</p><Link href="/" className="button">Back to the lab ↗</Link><span className="not-found-number" aria-hidden="true">404</span></main>;}
