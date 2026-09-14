@@ -52,7 +52,7 @@ export const publicationIssues = (kind:Kind, data:EntryData):string[] => {
   if(kind === "settings") {
     if(!data.name.trim() || !data.displayName.trim() || !data.heroLineOne.trim() || !data.heroLineTwo.trim()) errors.push("Complete your name and homepage headline.");
   } else if(!data.title.trim()) errors.push("Add a title.");
-  if(kind === "paper" && (!data.authors.length || !data.abstract.trim())) errors.push("Add the paper's authors and abstract.");
+  if(kind === "paper" && (!data.authors.length || data.authors.some(a=>!a.trim()) || !data.abstract.trim())) errors.push("Add the paper's authors and abstract.");
   if(data.assets.some(a=>["cover","gallery","portrait"].includes(a.role) && !a.alt.trim())) errors.push("Add alt text for every image.");
   for(const role of ["cover","pdf","portrait","cv"]) if(data.assets.filter(a=>a.role===role).length>1) errors.push("Only one "+role+" file is allowed.");
   const roles = kind==="settings" ? ["portrait","cv"] : kind==="paper" ? ["cover","gallery","pdf"] : ["cover","gallery"];
