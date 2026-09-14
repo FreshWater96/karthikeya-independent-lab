@@ -8,11 +8,12 @@ import {mkdir} from "node:fs/promises";
 const origin="http://127.0.0.1:3100";
 const hash=(s:string)=>createHash("sha256").update(s).digest("hex");
 let pool:Pool;
-test.beforeAll(()=>{
+test.beforeAll(async()=>{
   if(process.env.LAB_TEST_DATABASE!=="1" || !new URL(process.env.DATABASE_URL!).pathname.endsWith("/lab_test"))throw new Error("Integration tests require an explicitly disposable lab_test database. Never run these against real portfolio content.");
   pool=new Pool({connectionString:process.env.DATABASE_URL});
 });
 test.afterAll(async()=>{await pool?.end();});
+test.beforeEach(async()=>{await pool.query("DELETE FROM entries WHERE kind<>\'settings\' AND draft->>\'title\' LIKE \'[TEST]%\'");});
 async function ownerContext(ownerId=process.env.OWNER_GITHUB_ID!){
   const token=randomBytes(32).toString("hex");
   await pool.query("INSERT INTO sessions(token_hash,owner_id,expires_at) VALUES($1,$2,now()+interval '10 minutes')",[hash(token),ownerId]);
@@ -129,6 +130,32 @@ test("Owner studio UI saves changes through the real API",async({page})=>{
   const e=entries.find((x:{draft:{title:string}})=>x.draft.title==="[TEST] UI draft");
   await user.context.delete("/api/studio/entries/"+e.id,{headers:{"X-CSRF-Token":user.csrf},data:{revision:e.revision,confirmation:e.draft.title}});
   await user.context.dispose();
+});
+test("Real WebGL mounts, pauses offscreen, and honors the motion toggle",async({page})=>{
+  await page.setViewportSize({width:1440,height:1000});
+  await page.emulateMedia({reducedMotion:"no-preference"});
+  await page.addInitScript(()=>{Object.defineProperty(navigator,"hardwareConcurrency",{get:()=>8});Object.defineProperty(navigator,"deviceMemory",{get:()=>8});localStorage.setItem("lab-motion","on");});
+  await page.goto("/");
+  const webgl=await page.evaluate(()=>{const canvas=document.createElement("canvas");const gl=canvas.getContext("webgl2");if(gl)gl.getExtension("WEBGL_lose_context")?.loseContext();return !!gl;});
+  test.skip(!webgl,"This runner has no usable WebGL2 context; static fallback is tested separately.");
+  await expect(page.locator(".sculpture-canvas canvas")).toHaveCount(1);
+  await expect(page.locator(".sculpture-canvas")).toHaveAttribute("data-motion-state","playing");
+  await page.locator(".site-footer").scrollIntoViewIfNeeded();
+  await expect(page.locator(".sculpture-canvas")).toHaveAttribute("data-motion-state","paused");
+  await page.evaluate(()=>window.scrollTo(0,0));
+  await expect(page.locator(".sculpture-canvas")).toHaveAttribute("data-motion-state","playing");
+  await page.evaluate(()=>{Object.defineProperty(document,"hidden",{configurable:true,get:()=>true});document.dispatchEvent(new Event("visibilitychange"));});
+  await expect(page.locator(".sculpture-canvas")).toHaveAttribute("data-motion-state","paused");
+  await page.evaluate(()=>{delete (document as unknown as Record<string,unknown>).hidden;document.dispatchEvent(new Event("visibilitychange"));});
+  await expect(page.locator(".sculpture-canvas")).toHaveAttribute("data-motion-state","playing");
+  await page.getByRole("button",{name:"Pause sculpture animation"}).click();
+  await expect(page.locator(".sculpture-canvas canvas")).toHaveCount(0);
+  await page.getByRole("button",{name:"Enable sculpture animation"}).click();
+  await expect(page.locator(".sculpture-canvas canvas")).toHaveCount(1);
+  await page.evaluate(()=>document.fonts.ready);
+  await page.screenshot({path:"test-results/webgl.png"});
+  const screenshot=await page.screenshot({type:"jpeg",quality:60});
+  console.log("LAB_WEBGL_IMAGE="+screenshot.toString("base64"));
 });
 test("Capture review artifacts of the empty portfolio",async({page})=>{
   await mkdir("test-results/review",{recursive:true});await page.emulateMedia({reducedMotion:"reduce"});await page.setViewportSize({width:1440,height:1000});await page.goto("/");await page.evaluate(()=>document.fonts.ready);
