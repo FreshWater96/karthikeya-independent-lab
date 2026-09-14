@@ -20,7 +20,17 @@ jobs:
         with:
           node-version: 22
       - name: Install dependencies
-        run: npm install --no-fund --no-audit
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --no-fund --no-audit
+          else
+            npm install --no-fund --no-audit
+          fi
+      - name: Record resolved dependency lock for source review
+        run: |
+          if ! git ls-files --error-unmatch package-lock.json >/dev/null 2>&1; then
+            node -e "const s=require('fs').readFileSync('package-lock.json').toString('base64'); for(let i=0;i<s.length;i+=4000) console.log('LAB_LOCK_CHUNK='+s.slice(i,i+4000));"
+          fi
       - name: Generate disposable local test configuration
         run: node scripts/setup-local.mjs --test
       - name: Start private local data services
