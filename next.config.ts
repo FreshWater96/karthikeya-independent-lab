@@ -11,7 +11,16 @@ const config: NextConfig = {
       { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
       { key: "Content-Security-Policy", value: "default-src 'self'; script-src 'self' 'unsafe-inline'"+(process.env.NODE_ENV==="development"?" 'unsafe-eval'":"")+"; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self'; connect-src 'self'; media-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'" },
       ...(process.env.SITE_MODE !== "public" ? [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }] : [])
-    ] }];
+    ] },
+    { source: "/api/files/:path*", headers: [
+      {key:"Content-Security-Policy",value:"sandbox; default-src 'none'; frame-ancestors 'self'"},
+      {key:"X-Robots-Tag",value:"noindex, nofollow, noarchive"}
+    ] },
+    { source: "/studio/:path*", headers: [
+      {key:"X-Robots-Tag",value:"noindex, nofollow, noarchive"},
+      {key:"Cache-Control",value:"private, no-store, max-age=0"}
+    ] }
+    ];
   }
 };
 export default config;
