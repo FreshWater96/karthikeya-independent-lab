@@ -57,7 +57,7 @@ export function mountSculpture(host:HTMLElement,onLost:()=>void){
     group.rotation.z=-.4+Math.sin(time*.13)*.055;group.position.y=Math.sin(time*.4)*.055+scroll*.08;
     secondary.rotation.z=1.2+Math.sin(time*.19)*.13;draw();frame=requestAnimationFrame(loop);
   }
-  function update(){if(frame)cancelAnimationFrame(frame);frame=0;if(visible&&!document.hidden&&!dead){last=performance.now();frame=requestAnimationFrame(loop);}}
+  function update(){if(frame)cancelAnimationFrame(frame);frame=0;host.dataset.motionState=visible&&!document.hidden&&!dead?"playing":"paused";if(visible&&!document.hidden&&!dead){last=performance.now();frame=requestAnimationFrame(loop);}}
   function pointer(event:PointerEvent){const r=host.getBoundingClientRect();px=(event.clientX-r.left)/r.width-.5;py=(event.clientY-r.top)/r.height-.5;}
   function leave(){px=0;py=0;}
   function onScroll(){const r=host.getBoundingClientRect();scroll=THREE.MathUtils.clamp(-r.top/(r.height||1),0,1);}
