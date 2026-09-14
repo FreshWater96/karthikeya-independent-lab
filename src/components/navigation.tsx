@@ -7,6 +7,7 @@ export function Mark(){return <svg viewBox="0 0 32 32" width="30" height="30" ar
 export default function Navigation({name}:{name:string}){
   const path=usePathname(),[open,setOpen]=useState(false),toggle=useRef<HTMLButtonElement>(null);
   useEffect(()=>{setOpen(false);},[path]);
+  useEffect(()=>{if(!open)return;const escape=(event:KeyboardEvent)=>{if(event.key==="Escape"){setOpen(false);toggle.current?.focus();}};document.addEventListener("keydown",escape);return()=>document.removeEventListener("keydown",escape);},[open]);
   return <header className="site-header">
     <Link href="/" className="wordmark" aria-label={name+" — Home"}><Mark/><span>{name}<span className="wordmark-dot">.</span></span><span className="brand-label mono">INDEPENDENT<br/>LAB</span></Link>
     <button type="button" className="menu-toggle mono" ref={toggle} aria-expanded={open} aria-controls="main-navigation" onClick={()=>setOpen(!open)}>{open?"Close −":"Menu +"}</button>
