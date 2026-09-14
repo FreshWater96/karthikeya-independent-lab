@@ -11,12 +11,12 @@ const pages={
 type Context={params:Promise<{section:string}>};
 export async function generateMetadata({params}:Context):Promise<Metadata>{
   if(!(await publicAccess()))return{title:"Private preview",robots:{index:false,follow:false}};
-  const {section}=await params;if(!(section in pages))return{title:"Not found"};
+  const {section}=await params;if(!Object.hasOwn(pages,section))return{title:"Not found"};
   const p=pages[section as keyof typeof pages];return{title:section[0].toUpperCase()+section.slice(1),description:p.subtitle,alternates:{canonical:"/"+section}};
 }
 export default async function CollectionPage({params}:Context){
   if(!(await publicAccess()))return null;
-  const {section}=await params;if(!(section in pages))notFound();
+  const {section}=await params;if(!Object.hasOwn(pages,section))notFound();
   const p=pages[section as keyof typeof pages],entries=await publicEntries(p.kind);
   return <div className="collection-page"><header className="collection-heading"><span className="mono eyebrow">{p.index} / {section.toUpperCase()}</span><h1>{p.title}</h1><p>{p.subtitle}</p></header><Collection entries={entries} section={section as keyof typeof pages}/></div>;
 }
